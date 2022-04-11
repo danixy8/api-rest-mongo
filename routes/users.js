@@ -75,7 +75,7 @@ route.put('/:email', (req, res) => {
 });
 
 route.delete('/:email', (req, res) => {
-  let result = enableUser(req.params.email);
+  let result = disableUser(req.params.email);
   result.then(valor => { 
     res.json({ 
       user: valor
@@ -111,7 +111,7 @@ async function updatedUser(email, body){
   return user
 } 
 
-async function enableUser(email){ 
+async function disableUser(email){ 
   let user = await User.findOneAndUpdate({email: email}, {
     $set: {
       status: false,
