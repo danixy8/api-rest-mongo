@@ -30,26 +30,40 @@ route.get('/', (req, res) => {
 
 route.post('/', (req, res) => { 
   let body = req.body;
-  const {error, valor} = schema.validate({name: body.name, email: body.email});
 
-  if(!error){
-    let result = createUser(body);
-
-    result.then(user => { 
-      res.json({
-        valor: user
+  User.findOne({email: body.email}, (err, user) => {
+    if(err){ 
+      return res.status(400).json({
+        error: 'Server error'
       })
-    }).catch(err => {
-      res.status(400).json({ 
-        error: err
-      })
-    });
-  }else{ 
-    res.status(400).json({
-      error: error.message
-    })
-  }
+    }
+    if(user){
+      return res.status(400).json({
+        message: 'user already exists'
+      });
+    }else{ 
+      const {error, valor} = schema.validate({name: body.name, email: body.email});
 
+      if(!error){
+        let result = createUser(body);
+    
+        result.then(user => { 
+          res.json({
+            name: user.name,
+            email: user.email
+          })
+        }).catch(err => {
+          res.status(400).json({ 
+            error: err
+          })
+        });
+      }else{ 
+        res.status(400).json({
+          error: error.message
+        })
+      }
+    }
+  });
 });
 
 route.put('/:email', (req, res) => {
@@ -60,7 +74,8 @@ route.put('/:email', (req, res) => {
     let result = updatedUser(req.params.email, body);
     result.then(valor => { 
       res.json({ 
-        valor
+        name: valor.name,
+        email: valor.email
       })
     }).catch(err => { 
       res.status(400).json({ 
@@ -78,7 +93,8 @@ route.delete('/:email', (req, res) => {
   let result = disableUser(req.params.email);
   result.then(valor => { 
     res.json({ 
-      user: valor
+      name: valor.name,
+      email: valor.email
     })
   }).catch(err => { 
     res.status(400).json({ 
@@ -98,6 +114,7 @@ async function createUser(body){
 
 async function listActiveUsers(){
   let users = await User.find({status: true})
+  .select({name: 1, email: 1});
   return users
 }
 
