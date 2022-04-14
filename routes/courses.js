@@ -1,8 +1,9 @@
 const express = require('express');
 const route = express.Router();
 const Course = require('../models/course_model');
+const verificarToken = require('../middlewares/auth');
 
-route.get('/', (req, res) => { 
+route.get('/', verificarToken, (req, res) => { 
   let result = listActiveCourses();
   result.then((courses) => {
     res.json(courses)
@@ -13,7 +14,7 @@ route.get('/', (req, res) => {
   });
 });
 
-route.post('/', (req, res) => { 
+route.post('/', verificarToken, (req, res) => { 
   let result = createCourse(req.body);
 
   result.then(course => { 
@@ -27,7 +28,7 @@ route.post('/', (req, res) => {
   });
 });
 
-route.put('/:id', (req, res) => {
+route.put('/:id', verificarToken, (req, res) => {
   let result = updatedCourse(req.params.id, req.body);
 
   result.then(course => { 
@@ -41,7 +42,7 @@ route.put('/:id', (req, res) => {
   });
 });
 
-route.delete('/:id', (req, res) => {
+route.delete('/:id', verificarToken, (req, res) => {
   let result = disableCourse(req.params.id);
   result.then(course => { 
     res.json({ 

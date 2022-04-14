@@ -1,7 +1,9 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const User = require('../models/user_model');
 const route = express.Router();
 const Joi = require('joi');
+const verificarToken = require('../middlewares/auth');
 
 const schema = Joi.object({
   name: Joi.string()
@@ -16,8 +18,7 @@ const schema = Joi.object({
       .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
 });
 
-
-route.get('/', (req, res) => { 
+route.get('/', verificarToken, (req, res) => {
   let result = listActiveUsers();
   result.then((users) => {
     res.json(users)
@@ -41,7 +42,8 @@ route.post('/', (req, res) => {
       return res.status(400).json({
         message: 'user already exists'
       });
-    }else{ 
+    }
+    else{ 
       const {error, valor} = schema.validate({name: body.name, email: body.email});
 
       if(!error){
@@ -60,13 +62,13 @@ route.post('/', (req, res) => {
       }else{ 
         res.status(400).json({
           error: error.message
-        })
+        });
       }
     }
   });
 });
 
-route.put('/:email', (req, res) => {
+route.put('/:email', verificarToken, (req, res) => {
   let body = req.body;
   const {error, valor} = schema.validate({name: body.name});
 
@@ -85,11 +87,11 @@ route.put('/:email', (req, res) => {
   }else{ 
     res.status(400).json({ 
       error: error.message
-    })
+    });
   }
 });
 
-route.delete('/:email', (req, res) => {
+route.delete('/:email', verificarToken, (req, res) => {
   let result = disableUser(req.params.email);
   result.then(valor => { 
     res.json({ 
@@ -107,7 +109,7 @@ async function createUser(body){
   let user = new User({
     email: body.email,
     name: body.name,
-    password: body.password
+    password: bcrypt.hashSync(body.password, 10) 
   });
   return await user.save();
 };
@@ -116,7 +118,7 @@ async function listActiveUsers(){
   let users = await User.find({status: true})
   .select({name: 1, email: 1});
   return users
-}
+};
 
 async function updatedUser(email, body){ 
   let user = await User.findOneAndUpdate({email: email}, {
@@ -124,9 +126,9 @@ async function updatedUser(email, body){
       name: body.name,
       password: body.password
     }
-  }, {new: true})
+  },{new: true});
   return user
-} 
+};
 
 async function disableUser(email){ 
   let user = await User.findOneAndUpdate({email: email}, {
