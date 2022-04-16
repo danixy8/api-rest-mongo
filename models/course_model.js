@@ -1,14 +1,19 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const authorSchema = new mongoose.Schema({ 
+  name: String,
+  email: String,
+})
 const courseSchema = new mongoose.Schema({
   title: {
     type: String,
     require: true
   },
-  author: {
-    type: Schema.Types.ObjectId, ref: 'User'
-  },
+  author: authorSchema,
+  // author: {
+  //   type: Schema.Types.ObjectId, ref: 'User'
+  // },
   description: { 
     type: String, 
     require: false

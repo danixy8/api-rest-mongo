@@ -58,7 +58,8 @@ route.delete('/:id', verificarToken, (req, res) => {
 async function createCourse(req){
   let course = new Course({
     title: req.body.title,
-    author: req.user._id,
+    // author: req.user._id,
+    author: req.user,
     description: req.body.description
   });
   return await course.save();
