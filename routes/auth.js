@@ -12,7 +12,7 @@ route.post('/', (req, res) => {
       const validPassword = bcrypt.compareSync(req.body.password, data.password);
       if(!validPassword) return res.status(400).json({error: 'ok', message:'incorrect user or pass'})
       const jwtoken = jwt.sign({
-        data: {_id: data._id, name: data.name, email: data.email}
+        user: {_id: data._id, name: data.name, email: data.email}
       }, config.get('configToken.SEED'), { expiresIn: config.get('configToken.expiration') });
       res.json({
         user: {

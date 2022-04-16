@@ -3,7 +3,7 @@ const route = express.Router();
 const Course = require('../models/course_model');
 const verificarToken = require('../middlewares/auth');
 
-route.get('/', verificarToken, (req, res) => { 
+route.get('/', verificarToken, (req, res) => {
   let result = listActiveCourses();
   result.then((courses) => {
     res.json(courses)
@@ -15,7 +15,7 @@ route.get('/', verificarToken, (req, res) => {
 });
 
 route.post('/', verificarToken, (req, res) => { 
-  let result = createCourse(req.body);
+  let result = createCourse(req);
 
   result.then(course => { 
     res.json({
@@ -55,16 +55,19 @@ route.delete('/:id', verificarToken, (req, res) => {
   });
 });
 
-async function createCourse(body){
+async function createCourse(req){
   let course = new Course({
-    title: body.title,
-    description: body.description
+    title: req.body.title,
+    author: req.user._id,
+    description: req.body.description
   });
   return await course.save();
 }
 
 async function listActiveCourses(){
-  let courses = await Course.find({status: true})
+  let courses = await Course
+  .find({status: true})
+  .populate('author', 'name -_id');
   return courses;
 }
 

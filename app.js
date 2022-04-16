@@ -8,7 +8,7 @@ const config = require('config');
 //conectarnos a la base de datos
 mongoose.connect(config.get('configDB.HOST'))
   .then(()=> console.log('conectado a mongo'))
-  .catch(err => console.log('No se pudo conectar con MongoDB...', err))
+  .catch(err => console.log('No se pudo conectar con MongoDB...', err));
 
 const app = express();
 
