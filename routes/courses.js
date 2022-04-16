@@ -68,7 +68,7 @@ async function createCourse(req){
 async function listActiveCourses(){
   let courses = await Course
   .find({status: true})
-  .populate('author', 'name -_id');
+  // .populate('author', 'name -_id');
   return courses;
 }
 
